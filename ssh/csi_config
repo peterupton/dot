@@ -1,0 +1,38 @@
+# jump/bastion hosts
+Host catapult.alcf.anl.gov trebuchet.alcf.anl.gov
+    PKCS11Provider /opt/homebrew/lib/opensc-pkcs11.so # use HSPD card
+    PreferredAuthentications publickey
+    IdentityFile /opt/homebrew/lib/opensc-pkcs11.so # use HSPD card
+    DynamicForward 9997 # SOCKS proxy for Firefox and other
+	User pupton
+
+Host *
+    User pupton # default to username
+    ForwardAgent  yes # let remote systems use local keys
+    ServerAliveInterval 60 # ssh will disconnect after 3*60 secconds without server alive message
+    ControlMaster auto  # try to use an existing connection before creating and authing a new one
+    ControlPath   /private/tmp/%r@%h:%p  # file for above
+    UseKeychain   yes # store ssh key passphrases in macos keychain
+    AddKeysToAgent yes 
+
+Host jlse
+    Hostname login.jlse.anl.gov
+
+### Cels
+Host login-gce
+	Hostname  logins.cels.anl.gov
+
+Host homes-gce
+	Hostname homes.cels.anl.gov
+	ProxyCommand ssh login-gce -q -W %h:%p
+	ForwardX11 yes
+    DynamicForward 9995
+
+Host *.cels.anl.gov !logins.cels.anl.gov
+	ProxyCommand ssh pupton@logins.cels.anl.gov -q -W %h:%p
+
+Host gitlab.alcf.anl.gov
+    User git
+    ForwardX11 no
+    ForwardX11Trusted no
+    ProxyCommand nc -x localhost:9997 %h %p

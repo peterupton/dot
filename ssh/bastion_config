@@ -1,0 +1,24 @@
+Host aurora
+    HostName aan.aurora.alcf.anl.gov
+
+Host login.aurora
+    HostName login.aurora.alcf.anl.gov
+
+Host admin.aurora
+    HostName aurora-adminvm-0001.aurora.alcf.anl.gov
+
+Host admin.crux
+    HostName crux-adminvm-0001.crux.alcf.anl.gov
+
+Host admin.sirius
+    HostName sirius-adminvm-0001.sirius.alcf.anl.gov
+
+Host sirius
+    HostName sirius-uan-0002.head.cm.sirius.alcf.anl.gov
+
+Host sirius-uan-0001
+    HostName sirius-uan-0001.head.cm.sirius.alcf.anl.gov
+
+Host gitlab.alcf.anl.gov gitlab-dev.alcf.anl.gov gitlab.jlse.anl.gov gitlab-dev.jlse.anl.gov
+    User git
+    ForwardAgent yes

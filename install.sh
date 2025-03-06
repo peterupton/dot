@@ -5,10 +5,10 @@
 echo "linking configs"
 rm -v ~/.vimrc
 ln -v vimrc ~/.vimrc
+rm -v ~/.gitconfig
+ln -v gitconfig ~/.gitconfig
 rm -v ~/.bashrc
 ln -v bashrc ~/.bashrc
-rm -v ~/.site_bashrc
-ln -v site_bashrc ~/.site_bashrc
 rm -v ~/.bin
 ln -s bin ~/.bin
 rm -rv ~/.vim

@@ -1,3 +1,31 @@
+set nocompatible              " be iMproved, required
+
+" Check python version if available
+if has("python")
+    python import vim; from sys import version_info as v; vim.command('let python_version=%d' % (v[0] * 100 + v[1]))
+else
+    let python_version=0
+endif
+
+if python_version >= 3  " if we have reasonable python
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'ycm-core/YouCompleteMe'
+call vundle#end()            " required
+filetype plugin indent on    " required
+" Brief Vundle help
+" :PluginList       - lists configured plugins
+" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
+" :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
+"
+" see :h vundle for more details or wiki for FAQ
+" Put your non-Plugin stuff after this line
+endif
+
 set wildmenu " enable command completion
 set lazyredraw
 set showmatch
@@ -40,3 +68,6 @@ augroup VimStartup
   au!
   au VimEnter * if expand("%") == "" | e . | endif
 augroup END
+set spell " spell on by default
+highlight clear SpellBad
+highlight SpellBad ctermfg=darkred

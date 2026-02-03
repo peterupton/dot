@@ -71,3 +71,24 @@ augroup END
 set spell " spell on by default
 highlight clear SpellBad
 highlight SpellBad ctermfg=darkred
+
+set backup
+
+function! BackupDir()
+   if has('win32') || has('win64')
+      let l:backupdir=$VIM.'/backup/'.
+               \substitute(expand('%:p:h'), '\:', '~', '')
+   else
+      let l:backupdir=$HOME.'/.vim/backup/'.
+               \substitute(expand('%:p:h'), '^'.$HOME, '~', '')
+   endif
+
+   if !isdirectory(l:backupdir)
+      call mkdir(l:backupdir, 'p', 0700)
+   endif
+
+   let &backupdir=l:backupdir
+   let &backupext=strftime('~%Y-%m-%d_%H-%M-%S~')
+endfunction
+
+autocmd! bufwritepre * call BackupDir()

@@ -71,8 +71,11 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # https://unix.stackexchange.com/questions/9832/why-is-umount-not-spelled-unmount
 alias unmount='umount'
 
-# use "open" like macos:
-alias open='xdg-open &>/dev/null'
+# use "open" like macos if we are in Linux
+case "$(uname -s)" in
+    Linux*)
+        alias open='xdg-open &>/dev/null'
+esac
 
 # function to try and source if present 
 tsource() {
@@ -87,6 +90,14 @@ tsource() {
     fi
 }
 
+
+get ssh fingerprints
+function fingerprints() {
+  local file="${1:-$HOME/.ssh/authorized_keys}"
+  while read l; do
+    [[ -n $l && ${l###} = $l ]] && ssh-keygen -l -f /dev/stdin <<<$l
+  done < "${file}"
+}
 
 # source local bashrc
 tsouce .bashrc.local
@@ -161,8 +172,6 @@ function virtualenv_info(){
 
 #VENV="\[\033[35m\]\$(virtualenv_info)\[\033[30m\]";
 
-# disable the default virtualenv prompt change
-export VIRTUAL_ENV_DISABLE_PROMPT=1
 # don't try and set venv in prompt if root
 VENV='`[ $(id -u) == "0" ] && echo "" || echo "\[\033[35m\]\$(virtualenv_info)\[\033[30m\]"`'
 
@@ -172,6 +181,8 @@ export PATH="~/.local/bin:$PATH"
 export PATH="~/bin:$PATH"
 export PATH="~/.bin:$PATH"
 export PATH="~/Library/Python/3.9/bin:$PATH"
+export PATH="$PATH:/opt/homebrew/bin"
+export PATH="$PATH:/opt/homebrew/sbin"
 
 alias clip="echo \"no xclip or pbcopy command on this system\""
 # easy clip per os
@@ -614,13 +625,49 @@ __start_glab()
     __glab_process_completion_results
 }
 
+if type globus > /dev/null 2>&1; then
+        eval "$(globus --bash-completer)"
+fi
+
 if [[ $(type -t compopt) = "builtin" ]]; then
     complete -o default -F __start_glab glab
 else
     complete -o default -o nospace -F __start_glab glab
 fi
 
-# ex: ts=4 sw=4 et filetype=sh
+# ssh stuff
+mkdir -p ~/.ssh/controlmasters  # make sure ssh control masters folder exists
+
+# Source - https://stackoverflow.com/a/18915067
+# Posted by Litmus, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-02-20, License - CC BY-SA 4.0
+
+SSH_ENV="$HOME/.ssh/agent-environment"
+
+function start_agent {
+    echo "Initialising new SSH agent..."
+    /usr/bin/ssh-agent | sed 's/^echo/#echo/' >"$SSH_ENV"
+    echo succeeded
+    chmod 600 "$SSH_ENV"
+    . "$SSH_ENV" >/dev/null
+    /usr/bin/ssh-add;
+}
+
+# Source SSH settings, if applicable
+
+if [ -f "$SSH_ENV" ]; then
+    . "$SSH_ENV" >/dev/null
+    #ps $SSH_AGENT_PID doesn't work under Cygwin
+    ps -ef | grep $SSH_AGENT_PID | grep ssh-agent$ >/dev/null || {
+        start_agent
+    }
+else
+    start_agent
+fi
+
+
+export HOMEBREW_PREFIX=/opt/homebrew
+
 
 # vi prompt
 set -o vi
@@ -658,3 +705,4 @@ bash --version | head -n 1
 
 unset PROMPT_COMMAND # maybe 
 
+# ex: ts=4 sw=4 et filetype=sh
